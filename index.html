@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Home Care Service — electrician, AC repair, plumbing, appliance repair, cleaning and more." />
+  <title>Home Care Service | One Call • All Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand-mark" aria-label="Home Care Service">HC</div>
+      <div class="brand-copy">
+        <div class="brand-title">HOME CARE <span>SERVICE</span></div>
+        <div class="brand-sub">एक कॉल पर घर की सभी सेवाएं</div>
+      </div>
+      <div class="top-actions">
+        <a class="phone" href="tel:+919999999999">☎ <span>+91 99999 99999</span></a>
+        <button class="btn btn-primary" data-book-service>Book a Service</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">24×7 SERVICE • FAST & RELIABLE</div>
+          <h1>One Call.<br><span>All Home Solutions.</span></h1>
+          <p class="hero-text">भरोसेमंद सेवा, आपकी सुविधा के लिए — verified professionals, transparent pricing और आसान booking.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" data-book-service>Book a Service</button>
+            <a class="btn btn-light btn-lg" href="#services">Explore Services</a>
+          </div>
+          <div class="trust-row">
+            <div><strong>✓</strong> Verified professionals</div>
+            <div><strong>✓</strong> On-time service</div>
+            <div><strong>✓</strong> Affordable prices</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="service-orbit orbit-one">🔧</div>
+          <div class="service-orbit orbit-two">❄️</div>
+          <div class="service-orbit orbit-three">🧹</div>
+          <div class="hero-house">
+            <div class="roof"></div>
+            <div class="house-body">
+              <div class="window"></div>
+              <div class="door"></div>
+              <div class="tool">🔧</div>
+            </div>
+          </div>
+          <div class="hero-badge"><b>100%</b><span>Satisfaction<br>Guaranteed</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="section services-section">
+      <div class="container">
+        <div class="section-heading">
+          <div><span class="kicker">हमारी सेवाएं</span><h2>Choose a service</h2></div>
+          <p>Click any service to send an enquiry. The service list can be managed directly from Google Sheets.</p>
+        </div>
+        <div id="servicesGrid" class="services-grid" aria-live="polite"></div>
+        <div id="serviceLoading" class="loading">Loading services…</div>
+      </div>
+    </section>
+
+    <section class="why-section">
+      <div class="container why-grid">
+        <div><span class="kicker light">WHY HOME CARE SERVICE</span><h2>Simple booking. Reliable service.</h2></div>
+        <div class="why-items">
+          <div class="why-item"><span>✓</span><div><b>Verified & trained</b><small>Professionals you can trust</small></div></div>
+          <div class="why-item"><span>◷</span><div><b>On-time service</b><small>We respect your schedule</small></div></div>
+          <div class="why-item"><span>₹</span><div><b>Affordable prices</b><small>Clear enquiry before work</small></div></div>
+          <div class="why-item"><span>★</span><div><b>100% satisfaction</b><small>Customer-first support</small></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="payment-section">
+      <div class="container payment-card">
+        <div>
+          <span class="kicker">SAFE PAYMENT</span>
+          <h2>Pay using the QR code</h2>
+          <p>After your enquiry is submitted, use the QR code to make payment. Keep the payment screenshot/reference ready if our team asks for it.</p>
+          <button class="btn btn-primary" data-book-service>Send Enquiry</button>
+        </div>
+        <div class="qr-wrap"><img src="assets/payment-qr.png" alt="Payment QR code" /><span>Scan to pay</span></div>
+      </div>
+    </section>
+
+    <section class="area-section">
+      <div class="container area-inner">
+        <div><span class="kicker">WE SERVE</span><h2>Gwalior • Morar • Lashkar</h2><p>Residential & commercial services in nearby areas.</p></div>
+        <a class="btn btn-dark" href="tel:+919999999999">Call us</a>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container footer-inner"><div><b>HOME CARE SERVICE</b><span>One Call • All Solutions</span></div><div>© <span id="year"></span> Home Care Service</div></div></footer>
+
+  <div id="enquiryModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" type="button" aria-label="Close" data-close-modal>×</button>
+      <div class="modal-head"><span class="kicker">QUICK ENQUIRY</span><h2 id="modalTitle">Book a Home Service</h2><p>Tell us what you need and our team will contact you.</p></div>
+      <form id="enquiryForm" action="YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL" method="POST" target="submitFrame">
+        <input type="hidden" name="source" value="website" />
+        <input type="hidden" id="selectedService" name="selectedService" value="" />
+        <div class="form-grid">
+          <label>Full name<input required name="name" autocomplete="name" placeholder="Your name" /></label>
+          <label>Mobile number<input required name="phone" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile number" pattern="[0-9 +()-]{10,16}" /></label>
+          <label>Email <span>(optional)</span><input type="email" name="email" autocomplete="email" placeholder="you@example.com" /></label>
+          <label>Preferred date<input type="date" name="preferredDate" /></label>
+          <label>Preferred time<select name="preferredTime"><option value="">Select time</option><option>Morning (8 AM – 12 PM)</option><option>Afternoon (12 PM – 4 PM)</option><option>Evening (4 PM – 8 PM)</option><option>Any time</option></select></label>
+          <label>Service<select id="serviceSelect" name="service" required><option value="">Loading services…</option></select></label>
+          <label class="full">Address<textarea required name="address" rows="2" placeholder="House / flat, street, area, city"></textarea></label>
+          <label class="full">Requirement / problem<textarea required name="requirement" rows="3" placeholder="Describe the work you need…"></textarea></label>
+        </div>
+        <div class="form-note">By submitting, you agree that our service team may contact you regarding this enquiry.</div>
+        <button class="btn btn-primary btn-lg submit-btn" type="submit">Submit Enquiry</button>
+      </form>
+      <iframe name="submitFrame" id="submitFrame" class="hidden-frame" title="Form submission"></iframe>
+      <div id="successMessage" class="success-message" hidden><div class="success-icon">✓</div><h3>Enquiry received!</h3><p>Thank you. Our team will contact you shortly.</p><button class="btn btn-primary" data-close-modal>Done</button></div>
+    </div>
+  </div>
+
+  <script>window.HOME_CARE_CONFIG = { APPS_SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL' };</script>
+  <script src="app.js"></script>
+</body>
+</html>
