@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Care Gwalior - Pro Admin Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="h-full flex overflow-hidden bg-slate-900 text-slate-100">
+
+    <!-- ================= AUTHENTICATION WRAPPER ================= -->
+    <div id="auth-container" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+        <div class="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden p-8">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Login View -->
+            <div id="login-view" class="space-y-6 relative z-10">
+                <div class="text-center space-y-2">
+                    <div class="inline-flex p-3 bg-brand-600 text-white rounded-2xl shadow-lg shadow-brand-600/30 text-2xl mb-2">
+                        <i class="fa-solid fa-house-chimney-medical"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold tracking-tight text-white">Gwalior HomeCare Admin</h2>
+                    <p class="text-xs text-slate-400">Sign in to manage field operations & dispatch</p>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Email Address</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-envelope text-sm"></i></span>
+                            <input type="email" id="loginEmail" required class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="admin@gwaliorservice.in">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-lock text-sm"></i></span>
+                            <input type="password" id="loginPassword" required class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Enter password">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <label class="flex items-center space-x-2 text-slate-400 cursor-pointer">
+                            <input type="checkbox" class="rounded bg-slate-950 border-slate-800 text-brand-600 focus:ring-0">
+                            <span>Remember this device</span>
+                        </label>
+                        <a href="#" onclick="showToast('Password reset link sent to registered email')" class="text-brand-400 hover:underline">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-brand-600 to-blue-600 text-white font-semibold rounded-xl text-sm shadow-lg shadow-brand-600/30 hover:from-brand-500 hover:to-blue-500 transition-all">
+                        Sign In to Dashboard
+                    </button>
+                </form>
+
+                <div class="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
+                    Don't have an admin account? <button onclick="toggleAuthMode('signup')" class="text-brand-400 font-semibold hover:underline">Create Account</button>
+                </div>
+            </div>
+
+            <!-- Signup View -->
+            <div id="signup-view" class="space-y-6 relative z-10 hidden">
+                <div class="text-center space-y-2">
+                    <div class="inline-flex p-3 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-600/30 text-2xl mb-2">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold tracking-tight text-white">Register Admin / Manager</h2>
+                    <p class="text-xs text-slate-400">Join Gwalior's premier home service network</p>
+                </div>
+
+                <form onsubmit="handleSignup(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Full Name</label>
+                        <input type="text" id="signupName" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="e.g. Raghavendra Singh">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Work Email</label>
+                        <input type="email" id="signupEmail" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="raghav@gwaliorservice.in">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Role Permission</label>
+                        <select id="signupRole" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="Super Admin">Super Admin (Full Access)</option>
+                            <option value="Gwalior City Manager">Gwalior City Operations Manager</option>
+                            <option value="Dispatch Supervisor">Dispatch & Fleet Supervisor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Secure Password</label>
+                        <input type="password" id="signupPassword" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="��������">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-600 to-brand-600 text-white font-semibold rounded-xl text-sm shadow-lg shadow-blue-600/30 hover:opacity-90 transition-all">
+                        Register New Account
+                    </button>
+                </form>
+
+                <div class="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
+                    Already registered? <button onclick="toggleAuthMode('login')" class="text-brand-400 font-semibold hover:underline">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MAIN APP LAYOUT (Hidden until login) ================= -->
+    <div id="app-main-layout" class="flex-1 flex overflow-hidden hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-slate-950 border-r border-slate-800 text-slate-300 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto">
+            <div class="p-5 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-brand-500 to-blue-700 text-white p-2.5 rounded-2xl flex items-center justify-center font-bold text-lg shadow-lg shadow-brand-600/30">
+                        <i class="fa-solid fa-house-chimney-medical"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-white tracking-wide text-base">Gwalior Care</h1>
+                        <span class="text-[11px] text-brand-400 font-semibold tracking-wider uppercase">MP Hub #42</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1.5 custom-scrollbar">
+                <a href="#" onclick="switchTab('dashboard')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium bg-brand-600 text-white shadow-lg shadow-brand-600/30 transition-all" data-target="dashboard">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="switchTab('bookings')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="bookings">
+                    <i class="fa-solid fa-calendar-check w-5"></i>
+                    <span>Bookings</span>
+                    <span class="ml-auto bg-brand-500/20 text-brand-400 text-xs px-2 py-0.5 rounded-full font-semibold">14</span>
+                </a>
+                <a href="#" onclick="switchTab('technicians')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="technicians">
+                    <i class="fa-solid fa-screwdriver-wrench w-5"></i>
+                    <span>Technicians</span>
+                </a>
+                <a href="#" onclick="switchTab('customers')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="customers">
+                    <i class="fa-solid fa-users w-5"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="#" onclick="switchTab('services')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="services">
+                    <i class="fa-solid fa-boxes-stacked w-5"></i>
+                    <span>Services</span>
+                </a>
+                <a href="#" onclick="switchTab('payments')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="payments">
+                    <i class="fa-solid fa-wallet w-5"></i>
+                    <span>Payments</span>
+                </a>
+                <a href="#" onclick="switchTab('complaints')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="complaints">
+                    <i class="fa-solid fa-triangle-exclamation w-5"></i>
+                    <span>Complaints</span>
+                    <span class="ml-auto bg-rose-500/20 text-rose-400 text-xs px-2 py-0.5 rounded-full font-semibold">3</span>
+                </a>
+                <a href="#" onclick="switchTab('notifications')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="notifications">
+                    <i class="fa-solid fa-bell w-5"></i>
+                    <span>Notifications</span>
+                </a>
+                <a href="#" onclick="switchTab('offers')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="offers">
+                    <i class="fa-solid fa-tags w-5"></i>
+                    <span>Offers/Coupons</span>
+                </a>
+                <a href="#" onclick="switchTab('maps')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="maps">
+                    <i class="fa-solid fa-map-location-dot w-5"></i>
+                    <span>Google Maps</span>
+                </a>
+                <a href="#" onclick="switchTab('reports')" class="tab-link flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-900 hover:text-white transition-all text-slate-400" data-target="reports">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800">
+                <div class="flex items-center space-x-3 bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <img id="admin-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Admin" class="w-10 h-10 rounded-full object-cover ring-2 ring-brand-500">
+                    <div class="flex-1 min-w-0">
+                        <p id="admin-name-display" class="text-sm font-semibold text-white truncate">Raghavendra Singh</p>
+                        <p id="admin-role-display" class="text-xs text-brand-400 truncate">Super Admin</p>
+                    </div>
+                    <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 transition-colors" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-900">
+            <!-- Top Header -->
+            <header class="h-16 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-6 z-30">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div class="relative w-64 md:w-80">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                        </span>
+                        <input type="text" placeholder="Search Gwalior bookings, technicians..." class="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 text-white placeholder-slate-500">
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-brand-300">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Gwalior Hub Live � Lashkar & City Center</span>
+                    </div>
+                    <button onclick="switchTab('notifications')" class="relative p-2.5 text-slate-400 hover:text-white bg-slate-900 rounded-xl border border-slate-800 transition-colors">
+                        <i class="fa-regular fa-bell text-base"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-brand-500 rounded-full"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Area -->
+            <main class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-slate-900 space-y-6">
+
+                <!-- TAB: DASHBOARD -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Gwalior Command Center</h2>
+                            <p class="text-sm text-slate-400">Live operational metrics across Maharajbada, City Center, Morar, and Thatipur.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="openModal('addBookingModal')" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-lg shadow-brand-600/30 transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span>New Service Booking</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Gwalior Revenue</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">?3,84,200</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-emerald-400 mt-1 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> +16.8% this week
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-500/10 text-brand-400 rounded-2xl flex items-center justify-center text-xl border border-brand-500/20">
+                                <i class="fa-solid fa-indian-rupee-sign"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Active Bookings</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">26 Jobs</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-blue-400 mt-1 bg-blue-500/10 px-2 py-0.5 rounded-full">
+                                    <i class="fa-solid fa-bolt mr-1"></i> 9 Dispatched
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-xl border border-blue-500/20">
+                                <i class="fa-solid fa-calendar-day"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Field Technicians</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">32 / 40</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-emerald-400 mt-1 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                    <i class="fa-solid fa-circle-dot text-[8px] mr-1"></i> Active in Gwalior
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center text-xl border border-amber-500/20">
+                                <i class="fa-solid fa-screwdriver-wrench"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Open Tickets</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">3 Tickets</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-rose-400 mt-1 bg-rose-500/10 px-2 py-0.5 rounded-full">
+                                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Needs Review
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 bg-rose-500/10 text-rose-400 rounded-2xl flex items-center justify-center text-xl border border-rose-500/20">
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Bookings Table Section -->
+                    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Recent Gwalior Service Bookings</h3>
+                                <p class="text-xs text-slate-400">Real-time status tracking across local neighborhoods</p>
+                            </div>
+                            <button onclick="switchTab('bookings')" class="text-sm font-semibold text-brand-400 hover:text-brand-300">View All ?</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                                        <th class="py-3 px-6">Booking ID</th>
+                                        <th class="py-3 px-6">Customer & Area</th>
+                                        <th class="py-3 px-6">Service Type</th>
+                                        <th class="py-3 px-6">Assigned Tech</th>
+                                        <th class="py-3 px-6">Status</th>
+                                        <th class="py-3 px-6 text-right">Quick Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-recent-bookings" class="divide-y divide-slate-800 text-sm text-slate-300">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: BOOKINGS -->
+                <div id="tab-bookings" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Bookings & Dispatch Control</h2>
+                            <p class="text-sm text-slate-400">Manage client requests, OTP verification states, and technician assignments.</p>
+                        </div>
+                        <button onclick="openModal('addBookingModal')" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>New Booking</span>
+                        </button>
+                    </div>
+                    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-sm overflow-hidden p-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                                <input type="text" id="bookingSearch" placeholder="Search customer or ID..." onkeyup="filterBookings()" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-brand-500 text-white">
+                                <select id="bookingStatusFilter" onchange="filterBookings()" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 text-white">
+                                    <option value="">All Statuses</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Assigned">Assigned</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Pending">Pending</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                                        <th class="py-3 px-4">Booking ID</th>
+                                        <th class="py-3 px-4">Customer</th>
+                                        <th class="py-3 px-4">Service</th>
+                                        <th class="py-3 px-4">Technician</th>
+                                        <th class="py-3 px-4">Slot & Time</th>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="full-bookings-table" class="divide-y divide-slate-800 text-sm text-slate-300">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: TECHNICIANS -->
+                <div id="tab-technicians" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Gwalior Technician Workforce</h2>
+                            <p class="text-sm text-slate-400">Onboard verified plumbers, electricians, AC mechanics, and cleaners.</p>
+                        </div>
+                        <button onclick="openModal('addTechModal')" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-user-plus text-xs"></i>
+                            <span>Onboard Technician</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="technicians-grid">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- TAB: CUSTOMERS -->
+                <div id="tab-customers" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Registered Gwalior Customers</h2>
+                            <p class="text-sm text-slate-400">Database of households across City Center, Morar, and Padav.</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-sm overflow-hidden p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                                        <th class="py-3 px-4">Customer Name</th>
+                                        <th class="py-3 px-4">Mobile Number</th>
+                                        <th class="py-3 px-4">Gwalior Address</th>
+                                        <th class="py-3 px-4">Total Bookings</th>
+                                        <th class="py-3 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customers-table-body" class="divide-y divide-slate-800 text-sm text-slate-300">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: SERVICES -->
+                <div id="tab-services" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Services & Pricing Catalog</h2>
+                            <p class="text-sm text-slate-400">Configure home care categories, transparent pricing, and duration.</p>
+                        </div>
+                        <button onclick="openModal('addServiceModal')" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>Add New Service</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="services-grid">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- TAB: PAYMENTS -->
+                <div id="tab-payments" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Payments & Settlements</h2>
+                            <p class="text-sm text-slate-400">Track online UPI collections, Cash on Delivery payouts, and gateway status.</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-sm overflow-hidden p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                                        <th class="py-3 px-4">Transaction ID</th>
+                                        <th class="py-3 px-4">Customer</th>
+                                        <th class="py-3 px-4">Service</th>
+                                        <th class="py-3 px-4">Amount</th>
+                                        <th class="py-3 px-4">Payment Mode</th>
+                                        <th class="py-3 px-4">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payments-table-body" class="divide-y divide-slate-800 text-sm text-slate-300">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: COMPLAINTS -->
+                <div id="tab-complaints" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Customer Complaints & Disputes</h2>
+                            <p class="text-sm text-slate-400">Review ticket escalations and assign corrective resolutions.</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-sm overflow-hidden p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                                        <th class="py-3 px-4">Ticket ID</th>
+                                        <th class="py-3 px-4">Customer</th>
+                                        <th class="py-3 px-4">Issue Description</th>
+                                        <th class="py-3 px-4">Priority</th>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-4 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="complaints-table-body" class="divide-y divide-slate-800 text-sm text-slate-300">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: NOTIFICATIONS -->
+                <div id="tab-notifications" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Broadcast Notifications & Push Alerts</h2>
+                            <p class="text-sm text-slate-400">Send WhatsApp/SMS updates and push notifications to Gwalior users.</p>
+                        </div>
+                        <button onclick="openModal('addNotificationModal')" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                            <span>Send Broadcast</span>
+                        </button>
+                    </div>
+                    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-sm overflow-hidden p-6">
+                        <div class="space-y-4" id="notifications-list">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: OFFERS -->
+                <div id="tab-offers" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Offers & Discount Coupons</h2>
+                            <p class="text-sm text-slate-400">Create promotional discount codes for festivals and special campaigns.</p>
+                        </div>
+                        <button onclick="openModal('addCouponModal')" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>Create Coupon</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="coupons-grid">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- TAB: MAPS -->
+                <div id="tab-maps" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Google Maps Live Fleet Radar (Gwalior)</h2>
+                            <p class="text-sm text-slate-400">Real-time GPS simulation tracking field technicians across Gwalior sectors.</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-sm overflow-hidden p-4">
+                        <div class="relative w-full h-[550px] bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center border border-slate-800">
+                            <!-- Simulated Map Grid Background -->
+                            <div class="absolute inset-0 opacity-25 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:28px_28px]"></div>
+                            
+                            <!-- Simulated Map UI Overlay -->
+                            <div class="absolute top-4 left-4 bg-slate-950/90 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-slate-800 text-xs font-semibold space-y-1.5 text-slate-200 z-20">
+                                <p class="text-brand-400 font-bold mb-1"><i class="fa-solid fa-satellite-dish mr-1"></i> Gwalior Sector Radar</p>
+                                <p>?? Active Techs Online: 32</p>
+                                <p>?? Ongoing Dispatches: 9</p>
+                                <p>?? Hub: City Center / Morar</p>
+                            </div>
+
+                            <!-- Animated Technician Markers -->
+                            <div class="absolute top-1/4 left-1/3 animate-bounce cursor-pointer group z-10" onclick="showToast('Technician: Amit Kumar | Area: City Center | Job: AC Deep Cleaning')">
+                                <div class="bg-brand-600 text-white px-3 py-1.5 rounded-full shadow-xl flex items-center space-x-2 text-xs font-semibold border border-brand-400">
+                                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                                    <span>Amit K. (City Center)</span>
+                                </div>
+                                <div class="w-3 h-3 bg-brand-500 rotate-45 mx-auto -mt-1.5"></div>
+                            </div>
+
+                            <div class="absolute top-1/2 left-2/3 animate-bounce cursor-pointer group z-10" onclick="showToast('Technician: Rohit Singh | Area: Morar | Job: Tap Repair')">
+                                <div class="bg-blue-600 text-white px-3 py-1.5 rounded-full shadow-xl flex items-center space-x-2 text-xs font-semibold border border-blue-400">
+                                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                                    <span>Rohit S. (Morar)</span>
+                                </div>
+                                <div class="w-3 h-3 bg-blue-500 rotate-45 mx-auto -mt-1.5"></div>
+                            </div>
+
+                            <div class="absolute bottom-1/3 left-1/4 animate-bounce cursor-pointer group z-10" onclick="showToast('Technician: Manoj Verma | Area: Thatipur | Job: Geyser Service')">
+                                <div class="bg-indigo-600 text-white px-3 py-1.5 rounded-full shadow-xl flex items-center space-x-2 text-xs font-semibold border border-indigo-400">
+                                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                                    <span>Manoj V. (Thatipur)</span>
+                                </div>
+                                <div class="w-3 h-3 bg-indigo-500 rotate-45 mx-auto -mt-1.5"></div>
+                            </div>
+
+                            <p class="absolute bottom-4 z-20 text-xs text-slate-400 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800">Click on any technician marker to inspect live assignment details in Gwalior.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: REPORTS -->
+                <div id="tab-reports" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Financial & Operational Reports</h2>
+                            <p class="text-sm text-slate-400">Analyze performance metrics, category revenue share, and completion rates.</p>
+                        </div>
+                        <button onclick="showToast('Gwalior operations report exported as CSV')" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-download text-xs"></i>
+                            <span>Export CSV</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
+                            <h3 class="font-bold text-white">Revenue by Category (Gwalior Hub)</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs font-medium text-slate-400 mb-1">
+                                        <span>AC Repair & Servicing</span>
+                                        <span>45%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-brand-600 h-full rounded-full" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-medium text-slate-400 mb-1">
+                                        <span>Plumbing & Leak Fixes</span>
+                                        <span>25%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-blue-600 h-full rounded-full" style="width: 25%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-medium text-slate-400 mb-1">
+                                        <span>Electrical Work</span>
+                                        <span>20%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-600 h-full rounded-full" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-medium text-slate-400 mb-1">
+                                        <span>Home Deep Cleaning</span>
+                                        <span>10%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                                        <div class="bg-sky-600 h-full rounded-full" style="width: 10%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
+                            <h3 class="font-bold text-white">Booking Completion Metrics</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                                    <p class="text-xs text-slate-400 font-semibold uppercase">Success Rate</p>
+                                    <p class="text-3xl font-bold text-emerald-400 mt-1">99.1%</p>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                                    <p class="text-xs text-slate-400 font-semibold uppercase">Avg Response Time</p>
+                                    <p class="text-3xl font-bold text-brand-400 mt-1">12 mins</p>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                                    <p class="text-xs text-slate-400 font-semibold uppercase">Customer Rating</p>
+                                    <p class="text-3xl font-bold text-amber-400 mt-1">4.9 / 5</p>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                                    <p class="text-xs text-slate-400 font-semibold uppercase">Canceled Orders</p>
+                                    <p class="text-3xl font-bold text-rose-400 mt-1">1.2%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Add Booking Modal -->
+    <div id="addBookingModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <h3 class="font-bold text-white">Create Gwalior Booking</h3>
+                <button onclick="closeModal('addBookingModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewBooking(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Customer Name</label>
+                    <input type="text" id="newCustName" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. Vikas Sharma">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Mobile Number</label>
+                    <input type="text" id="newCustPhone" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. +91 98765 43210">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Select Service</label>
+                    <select id="newServiceType" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <option value="AC Deep Cleaning">AC Deep Cleaning (?799)</option>
+                        <option value="Tap Leakage Fix">Tap Leakage Fix (?299)</option>
+                        <option value="Wiring & Switch Repair">Wiring & Switch Repair (?399)</option>
+                        <option value="Sofa Deep Cleaning">Sofa Deep Cleaning (?1,199)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Assign Technician</label>
+                    <select id="newTechName" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <option value="Amit Kumar">Amit Kumar (City Center)</option>
+                        <option value="Rohit Singh">Rohit Singh (Morar)</option>
+                        <option value="Manoj Verma">Manoj Verma (Thatipur)</option>
+                        <option value="Suresh Yadav">Suresh Yadav (Lashkar)</option>
+                    </select>
+                </div>
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addBookingModal')" class="px-4 py-2 bg-slate-950 border border-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-500 shadow-lg shadow-brand-600/30">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Technician Modal -->
+    <div id="addTechModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <h3 class="font-bold text-white">Onboard Gwalior Technician</h3>
+                <button onclick="closeModal('addTechModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewTech(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Full Name</label>
+                    <input type="text" id="techNameInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. Alok Shrivastava">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Specialization Area</label>
+                    <input type="text" id="techSpecInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. AC & Refrigeration Expert">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Mobile Number</label>
+                    <input type="text" id="techPhoneInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. +91 99887 76655">
+                </div>
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addTechModal')" class="px-4 py-2 bg-slate-950 border border-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-500 shadow-lg shadow-brand-600/30">Save & Onboard</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div id="addServiceModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <h3 class="font-bold text-white">Add Home Care Service</h3>
+                <button onclick="closeModal('addServiceModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewService(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Service Title</label>
+                    <input type="text" id="serviceNameInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. Water Purifier RO Repair">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Category</label>
+                    <input type="text" id="serviceCatInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. Appliance Repair">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Price (?)</label>
+                    <input type="number" id="servicePriceInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. 499">
+                </div>
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addServiceModal')" class="px-4 py-2 bg-slate-950 border border-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-500 shadow-lg shadow-brand-600/30">Save Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Coupon Modal -->
+    <div id="addCouponModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <h3 class="font-bold text-white">Create Discount Coupon</h3>
+                <button onclick="closeModal('addCouponModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewCoupon(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Coupon Code</label>
+                    <input type="text" id="couponCodeInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm uppercase text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. GWALIOR50">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Description</label>
+                    <input type="text" id="couponDescInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. 50% off on first service in Gwalior">
+                </div>
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addCouponModal')" class="px-4 py-2 bg-slate-950 border border-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-500 shadow-lg shadow-brand-600/30">Create Coupon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Notification Modal -->
+    <div id="addNotificationModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <h3 class="font-bold text-white">Broadcast Alert / Push SMS</h3>
+                <button onclick="closeModal('addNotificationModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewNotification(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Notification Title</label>
+                    <input type="text" id="notifTitleInput" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. Monsoons Special Discount">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Message Body</label>
+                    <textarea id="notifMsgInput" rows="3" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Type notification message here..."></textarea>
+                </div>
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addNotificationModal')" class="px-4 py-2 bg-slate-950 border border-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-500 shadow-lg shadow-brand-600/30">Send Broadcast</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Popup -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-950 border border-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-medium">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-msg">Action completed successfully</span>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script>
+        const ADMIN_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzM8Qe3zvaNi0Y5AK1j4PS55x9atPdJENba5-5BX2-WvLpbtyyNaQY5KpX0-WGMbQN/exec';
+
+        // State Management Store for Gwalior Hub
+        let state = {
+            currentUser: null,
+            bookings: [],
+            technicians: [
+                { name: 'Amit Kumar', spec: 'AC & Refrigeration Expert', phone: '+91 98111 22334', rating: '4.9', status: 'On Job', jobs: '142 completed', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
+                { name: 'Rohit Singh', spec: 'Plumbing Specialist', phone: '+91 98222 33445', rating: '4.7', status: 'Available', jobs: '98 completed', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
+                { name: 'Manoj Verma', spec: 'Electrical Master Technician', phone: '+91 98333 44556', rating: '4.8', status: 'On Job', jobs: '124 completed', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces' },
+                { name: 'Suresh Yadav', spec: 'Home Cleaning Specialist', phone: '+91 98444 55667', rating: '4.6', status: 'Available', jobs: '85 completed', avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100&h=100&fit=crop&crop=faces' }
+            ],
+            customers: [
+                { name: 'Deepak Sharma', phone: '+91 98765 43210', address: 'Plot 12, City Center, Gwalior', bookings: 5 },
+                { name: 'Ritu Bhadauria', phone: '+91 91234 56789', address: 'Near DD Mall, Madan Nagar, Gwalior', bookings: 3 },
+                { name: 'Abhishek Tomar', phone: '+91 99887 11223', address: 'Maharajbada Chowk, Lashkar, Gwalior', bookings: 8 },
+                { name: 'Pooja Goyal', phone: '+91 97654 32109', address: 'Near Railway Station, Thatipur, Gwalior', bookings: 2 }
+            ],
+            services: [
+                { title: 'AC Deep Cleaning', category: 'AC Repair', price: '?799', duration: '45 mins', icon: 'fa-snowflake' },
+                { title: 'Tap & Pipe Leakage Fix', category: 'Plumbing', price: '?299', duration: '30 mins', icon: 'fa-faucet' },
+                { title: 'Electrical Switch & Fan Repair', category: 'Electrical', price: '?399', duration: '30 mins', icon: 'fa-bolt' },
+                { title: 'Sofa & Carpet Deep Cleaning', category: 'Cleaning', price: '?1,199', duration: '90 mins', icon: 'fa-couch' },
+                { title: 'Water Purifier RO Servicing', category: 'Appliance', price: '?499', duration: '45 mins', icon: 'fa-droplet' }
+            ],
+            payments: [
+                { id: 'TXN-7014', customer: 'Deepak Sharma', service: 'AC Deep Cleaning', amount: '?799', mode: 'UPI (PhonePe Gwalior)', status: 'Success' },
+                { id: 'TXN-7015', customer: 'Ritu Bhadauria', service: 'Tap Leakage Fix', amount: '?299', mode: 'Credit Card', status: 'Success' },
+                { id: 'TXN-7016', customer: 'Abhishek Tomar', service: 'Wiring Repair', amount: '?399', mode: 'Cash on Delivery', status: 'Pending' }
+            ],
+            complaints: [
+                { id: 'CMP-501', customer: 'Pooja Goyal', issue: 'Technician arrived 15 mins late due to heavy traffic near Phoolbagh.', priority: 'Medium', status: 'Open' },
+                { id: 'CMP-502', customer: 'Manish Sikarwar', issue: 'AC cooling issue persists after gas recharge.', priority: 'High', status: 'In Progress' },
+                { id: 'CMP-503', customer: 'Neha Sharma', issue: 'Incorrect billing amount applied during checkout.', priority: 'High', status: 'Resolved' }
+            ],
+            notifications: [
+                { title: 'Gwalior Fest Special 40% Off', time: '1 hour ago', body: 'Broadcast sent to 8,500 active household users across Gwalior.' },
+                { title: 'Weekly Fleet Audit Completed', time: 'Yesterday', body: 'All 32 active technicians verified successfully in City Center Hub.' }
+            ],
+            coupons: [
+                { code: 'GWALIOR50', desc: 'Flat 50% off on all appliance servicing & cleaning' },
+                { code: 'FIRST100', desc: 'Flat ?100 off for first-time Gwalior home bookings' },
+                { code: 'MONSOON20', desc: '20% discount on plumbing and electrical repairs' }
+            ]
+        };
+
+        // Authentication Handlers
+        function toggleAuthMode(mode) {
+            if (mode === 'signup') {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('signup-view').classList.remove('hidden');
+            } else {
+                document.getElementById('signup-view').classList.add('hidden');
+                document.getElementById('login-view').classList.remove('hidden');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(ADMIN_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'login', email, password })
+                });
+
+                const result = await response.json();
+                if (!response.ok || result.ok === false) {
+                    throw new Error(result.error || 'Login failed');
+                }
+
+                state.currentUser = result.admin;
+                document.getElementById('admin-name-display').innerText = state.currentUser.name;
+                document.getElementById('admin-role-display').innerText = state.currentUser.role;
+
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('app-main-layout').classList.remove('hidden');
+                await loadBookingsFromSheet();
+                renderAll();
+                showToast('Welcome back to Gwalior HomeCare Admin!');
+            } catch (error) {
+                showToast(error.message || 'Unable to log in.');
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value.trim();
+            const role = document.getElementById('signupRole').value;
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+
+            try {
+                const response = await fetch(ADMIN_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'register-admin', name, email, password, role })
+                });
+
+                const result = await response.json();
+                if (!response.ok || result.ok === false) {
+                    throw new Error(result.error || 'Account creation failed');
+                }
+
+                state.currentUser = result.admin;
+                document.getElementById('admin-name-display').innerText = state.currentUser.name;
+                document.getElementById('admin-role-display').innerText = state.currentUser.role;
+
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('app-main-layout').classList.remove('hidden');
+                await loadBookingsFromSheet();
+                renderAll();
+                showToast('Account registered & logged in successfully!');
+            } catch (error) {
+                showToast(error.message || 'Unable to create admin account.');
+            }
+        }
+
+        function handleLogout() {
+            state.currentUser = null;
+            document.getElementById('app-main-layout').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            showToast('Logged out securely');
+        }
+
+        // Toggle Sidebar for Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-link').forEach(el => {
+                el.classList.remove('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
+                el.classList.add('hover:bg-slate-900', 'hover:text-white', 'text-slate-400');
+            });
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            const activeLink = document.querySelector(`.tab-link[data-target="${tabId}"]`);
+            if (activeLink) {
+                activeLink.classList.remove('hover:bg-slate-900', 'hover:text-white', 'text-slate-400');
+                activeLink.classList.add('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
+            }
+
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+        }
+
+        // Modal Controls
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById(modalId).classList.add('flex');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('flex');
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Toast Alert Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function normalizeBookings(rawBookings) {
+            return (rawBookings || []).map((booking, index) => ({
+                id: booking.id || `#GW-${String(index + 1).padStart(3, '0')}`,
+                customer: booking.name || 'Customer',
+                phone: booking.phone || 'N/A',
+                service: booking.service || 'General Service',
+                tech: 'Unassigned',
+                date: booking.preferredDate || booking.timestamp || 'Pending',
+                status: 'Pending',
+                raw: booking
+            }));
+        }
+
+        async function loadBookingsFromSheet() {
+            try {
+                const response = await fetch(`${ADMIN_SCRIPT_URL}?action=bookings`);
+                const data = await response.json();
+                state.bookings = normalizeBookings(Array.isArray(data) ? data : []);
+            } catch (error) {
+                state.bookings = [];
+                showToast('Unable to load bookings.');
+            }
+        }
+
+        // Render Data Tables & Grids
+        function renderAll() {
+            renderDashboardRecentBookings();
+            renderFullBookings();
+            renderTechnicians();
+            renderCustomers();
+            renderServices();
+            renderPayments();
+            renderComplaints();
+            renderNotifications();
+            renderCoupons();
+        }
+
+        function renderDashboardRecentBookings() {
+            const tbody = document.getElementById('dashboard-recent-bookings');
+            tbody.innerHTML = state.bookings.slice(0, 4).map(b => `
+                <tr class="hover:bg-slate-900/60 transition-colors">
+                    <td class="py-3 px-6 font-semibold text-brand-400">${b.id}</td>
+                    <td class="py-3 px-6">${b.customer}</td>
+                    <td class="py-3 px-6">${b.service}</td>
+                    <td class="py-3 px-6">${b.tech}</td>
+                    <td class="py-3 px-6">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusBadge(b.status)}">${b.status}</span>
+                    </td>
+                    <td class="py-3 px-6 text-right">
+                        <button onclick="switchTab('maps')" class="text-brand-400 hover:text-brand-300 font-medium text-xs bg-brand-500/10 px-3 py-1.5 rounded-lg border border-brand-500/20 transition-colors">Track Map</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderFullBookings() {
+            const tbody = document.getElementById('full-bookings-table');
+            const search = document.getElementById('bookingSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('bookingStatusFilter').value;
+
+            const filtered = state.bookings.filter(b => {
+                const matchesSearch = b.customer.toLowerCase().includes(search) || b.id.toLowerCase().includes(search);
+                const matchesStatus = statusFilter === '' || b.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            tbody.innerHTML = filtered.map(b => `
+                <tr class="hover:bg-slate-900/60 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-brand-400">${b.id}</td>
+                    <td class="py-3 px-4 font-medium text-white">${b.customer}<br><span class="text-xs text-slate-400 font-normal">${b.phone}</span></td>
+                    <td class="py-3 px-4">${b.service}</td>
+                    <td class="py-3 px-4">${b.tech}</td>
+                    <td class="py-3 px-4 text-xs text-slate-400">${b.date}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusBadge(b.status)}">${b.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-2">
+                        <button onclick="showToast('Booking status updated')" class="text-slate-400 hover:text-brand-400 text-xs font-semibold">Edit</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterBookings() {
+            renderFullBookings();
+        }
+
+        function renderTechnicians() {
+            const grid = document.getElementById('technicians-grid');
+            grid.innerHTML = state.technicians.map(t => `
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <img src="${t.avatar}" class="w-14 h-14 rounded-full object-cover ring-2 ring-brand-500/30">
+                            <div>
+                                <h3 class="font-bold text-white">${t.name}</h3>
+                                <p class="text-xs text-brand-400 font-medium">${t.spec}</p>
+                                <span class="inline-flex items-center text-xs text-amber-400 font-bold mt-1">
+                                    <i class="fa-solid fa-star mr-1"></i> ${t.rating} / 5.0
+                                </span>
+                            </div>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-400 border-t border-slate-900 pt-3">
+                            <p><i class="fa-solid fa-phone mr-2 text-slate-500"></i> ${t.phone}</p>
+                            <p><i class="fa-solid fa-circle-check mr-2 text-slate-500"></i> ${t.jobs}</p>
+                        </div>
+                    </div>
+                    <div class="mt-5 flex items-center justify-between pt-3 border-t border-slate-900">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${t.status === 'On Job' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}">${t.status}</span>
+                        <button onclick="switchTab('maps')" class="text-xs font-semibold text-brand-400 hover:text-brand-300">Track Location ?</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCustomers() {
+            const tbody = document.getElementById('customers-table-body');
+            tbody.innerHTML = state.customers.map(c => `
+                <tr class="hover:bg-slate-900/60 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-white">${c.name}</td>
+                    <td class="py-3 px-4 text-slate-300">${c.phone}</td>
+                    <td class="py-3 px-4 text-slate-400 text-xs">${c.address}</td>
+                    <td class="py-3 px-4 font-semibold text-brand-400">${c.bookings} Bookings</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="showToast('Viewing Gwalior customer history')" class="text-brand-400 hover:text-brand-300 text-xs font-semibold">View History</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderServices() {
+            const grid = document.getElementById('services-grid');
+            grid.innerHTML = state.services.map(s => `
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-brand-500/10 text-brand-400 rounded-2xl flex items-center justify-center text-xl border border-brand-500/20">
+                            <i class="fa-solid ${s.icon}"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white">${s.title}</h3>
+                            <p class="text-xs text-slate-400">${s.category} � Avg. ${s.duration}</p>
+                            <p class="text-sm font-bold text-brand-400 mt-1">${s.price}</p>
+                        </div>
+                    </div>
+                    <button onclick="showToast('Service status updated')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-ellipsis-vertical text-lg"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function renderPayments() {
+            const tbody = document.getElementById('payments-table-body');
+            tbody.innerHTML = state.payments.map(p => `
+                <tr class="hover:bg-slate-900/60 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-brand-400">${p.id}</td>
+                    <td class="py-3 px-4 font-medium text-white">${p.customer}</td>
+                    <td class="py-3 px-4">${p.service}</td>
+                    <td class="py-3 px-4 font-bold text-white">${p.amount}</td>
+                    <td class="py-3 px-4 text-xs text-slate-400">${p.mode}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${p.status === 'Success' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}">${p.status}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderComplaints() {
+            const tbody = document.getElementById('complaints-table-body');
+            tbody.innerHTML = state.complaints.map(c => `
+                <tr class="hover:bg-slate-900/60 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-rose-400">${c.id}</td>
+                    <td class="py-3 px-4 font-medium text-white">${c.customer}</td>
+                    <td class="py-3 px-4 text-xs text-slate-300 max-w-xs truncate">${c.issue}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md ${c.priority === 'High' ? 'bg-rose-500/10 text-rose-400' : 'bg-amber-500/10 text-amber-400'}">${c.priority}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${c.status === 'Resolved' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}">${c.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="showToast('Complaint ticket marked resolved')" class="text-brand-400 hover:text-brand-300 text-xs font-semibold">Resolve</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notifications-list');
+            list.innerHTML = state.notifications.map(n => `
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-start space-x-3">
+                    <div class="w-10 h-10 bg-brand-500/10 text-brand-400 rounded-xl flex items-center justify-center shrink-0 border border-brand-500/20">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-white text-sm">${n.title}</h4>
+                            <span class="text-xs text-slate-500">${n.time}</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1">${n.body}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCoupons() {
+            const grid = document.getElementById('coupons-grid');
+            grid.innerHTML = state.coupons.map(cp => `
+                <div class="bg-gradient-to-br from-brand-900 to-slate-950 border border-brand-700/30 text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="bg-brand-500/20 text-brand-300 px-3 py-1 rounded-lg text-xs font-mono font-bold tracking-wider border border-brand-500/30">${cp.code}</span>
+                            <i class="fa-solid fa-tags text-brand-400"></i>
+                        </div>
+                        <p class="text-sm font-medium text-slate-200">${cp.desc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Active in Gwalior</span>
+                        <button onclick="showToast('Coupon code copied to clipboard')" class="text-brand-400 hover:underline font-semibold">Copy Code</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'In Progress': return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                case 'Assigned': return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                case 'Completed': return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                case 'Pending': return 'bg-purple-500/10 text-purple-400 border border-purple-500/20';
+                default: return 'bg-slate-800 text-slate-400';
+            }
+        }
+
+        // Form Handlers
+        function handleNewBooking(e) {
+            e.preventDefault();
+            const name = document.getElementById('newCustName').value;
+            const phone = document.getElementById('newCustPhone').value;
+            const service = document.getElementById('newServiceType').value;
+            const tech = document.getElementById('newTechName').value;
+
+            state.bookings.unshift({
+                id: '#GW-' + Math.floor(405 + Math.random() * 500),
+                customer: name,
+                phone: phone,
+                service: service,
+                tech: tech,
+                date: 'Just now',
+                status: 'Assigned'
+            });
+
+            closeModal('addBookingModal');
+            renderAll();
+            showToast('New Gwalior booking created & dispatched');
+            e.target.reset();
+        }
+
+        function handleNewTech(e) {
+            e.preventDefault();
+            const name = document.getElementById('techNameInput').value;
+            const spec = document.getElementById('techSpecInput').value;
+            const phone = document.getElementById('techPhoneInput').value;
+
+            state.technicians.unshift({
+                name: name,
+                spec: spec,
+                phone: phone,
+                rating: '5.0',
+                status: 'Available',
+                jobs: '0 completed',
+                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces'
+            });
+
+            closeModal('addTechModal');
+            renderAll();
+            showToast('Technician onboarded successfully in Gwalior hub');
+            e.target.reset();
+        }
+
+        function handleNewService(e) {
+            e.preventDefault();
+            const title = document.getElementById('serviceNameInput').value;
+            const category = document.getElementById('serviceCatInput').value;
+            const price = '?' + document.getElementById('servicePriceInput').value;
+
+            state.services.unshift({
+                title: title,
+                category: category,
+                price: price,
+                duration: '45 mins',
+                icon: 'fa-screwdriver-wrench'
+            });
+
+            closeModal('addServiceModal');
+            renderAll();
+            showToast('New service added to Gwalior catalog');
+            e.target.reset();
+        }
+
+        function handleNewCoupon(e) {
+            e.preventDefault();
+            const code = document.getElementById('couponCodeInput').value;
+            const desc = document.getElementById('couponDescInput').value;
+
+            state.coupons.unshift({ code, desc });
+            closeModal('addCouponModal');
+            renderAll();
+            showToast('Discount coupon campaign created');
+            e.target.reset();
+        }
+
+        function handleNewNotification(e) {
+            e.preventDefault();
+            const title = document.getElementById('notifTitleInput').value;
+            const body = document.getElementById('notifMsgInput').value;
+
+            state.notifications.unshift({ title, time: 'Just now', body });
+            closeModal('addNotificationModal');
+            renderAll();
+            showToast('Broadcast push alert sent to Gwalior users');
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>

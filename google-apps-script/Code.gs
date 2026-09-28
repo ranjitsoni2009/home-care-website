@@ -6,14 +6,29 @@
  *
  * SHEET 2: Enquiries
  * Automatically created with headers by setup().
+ *
+ * SHEET 3: Admins
+ * Columns: Created At | Name | Email | PasswordHash | Role
  */
 
 const SPREADSHEET_ID = "1mw0NJxQR5RCX9jaZqLUF11Jt_y56llBVN-VsxYtMS4U";
 const SERVICES_SHEET = "Services";
 const ENQUIRIES_SHEET = "Enquiries";
+const ADMINS_SHEET = "Admins";
+
+function hashPassword_(value) {
+  const raw = value == null ? "" : String(value);
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    raw,
+    Utilities.Charset.UTF_8,
+  );
+  return Utilities.byteArrayToHex(digest);
+}
 
 function setup() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
   let services = ss.getSheetByName(SERVICES_SHEET);
   if (!services) services = ss.insertSheet(SERVICES_SHEET);
   if (services.getLastRow() === 0) {
@@ -55,6 +70,135 @@ function setup() {
     ]);
     enquiries.setFrozenRows(1);
   }
+
+  let admins = ss.getSheetByName(ADMINS_SHEET);
+  if (!admins) admins = ss.insertSheet(ADMINS_SHEET);
+  if (admins.getLastRow() === 0) {
+    admins.appendRow(["Created At", "Name", "Email", "PasswordHash", "Role"]);
+    admins.setFrozenRows(1);
+    admins.appendRow([
+      new Date(),
+      "Super Admin",
+      "admin@gwaliorservice.in",
+      hashPassword_("password123"),
+      "Super Admin",
+    ]);
+  }
+}
+
+function getBookings_() {
+  const sheet =
+    SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(ENQUIRIES_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 10).getValues();
+  return rows
+    .filter((row) => row[0] || row[1] || row[2])
+    .map((row, index) => ({
+      id: index + 1,
+      timestamp: row[0] ? new Date(row[0]).toISOString() : "",
+      name: String(row[1] || ""),
+      phone: String(row[2] || ""),
+      email: String(row[3] || ""),
+      preferredDate: String(row[4] || ""),
+      preferredTime: String(row[5] || ""),
+      service: String(row[6] || ""),
+      address: String(row[7] || ""),
+      requirement: String(row[8] || ""),
+      source: String(row[9] || "website"),
+    }));
+}
+
+function loginAdmin_(p) {
+  const email = String(p.email || "")
+    .trim()
+    .toLowerCase();
+  const password = String(p.password || "");
+  if (!email || !password) {
+    return { ok: false, error: "Email and password are required." };
+  }
+
+  const sheet =
+    SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(ADMINS_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return { ok: false, error: "No admin account found." };
+  }
+
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues();
+  const match = rows.find(
+    (row) =>
+      String(row[2] || "")
+        .trim()
+        .toLowerCase() === email,
+  );
+  if (!match) {
+    return { ok: false, error: "Invalid email or password." };
+  }
+
+  if (hashPassword_(password) !== String(match[3] || "")) {
+    return { ok: false, error: "Invalid email or password." };
+  }
+
+  return {
+    ok: true,
+    message: "Login successful.",
+    admin: {
+      name: String(match[1] || ""),
+      email: String(match[2] || ""),
+      role: String(match[4] || "Admin"),
+    },
+  };
+}
+
+function registerAdmin_(p) {
+  const name = String(p.name || "").trim();
+  const email = String(p.email || "")
+    .trim()
+    .toLowerCase();
+  const password = String(p.password || "");
+  const role = String(p.role || "Admin").trim();
+
+  if (!name || !email || !password) {
+    return { ok: false, error: "Name, email and password are required." };
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(ADMINS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(ADMINS_SHEET);
+    sheet.appendRow(["Created At", "Name", "Email", "PasswordHash", "Role"]);
+    sheet.setFrozenRows(1);
+  }
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Created At", "Name", "Email", "PasswordHash", "Role"]);
+    sheet.setFrozenRows(1);
+  }
+
+  const rows =
+    sheet.getLastRow() > 1
+      ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues()
+      : [];
+  const exists = rows.some(
+    (row) =>
+      String(row[2] || "")
+        .trim()
+        .toLowerCase() === email,
+  );
+  if (exists) {
+    return { ok: false, error: "This email is already registered." };
+  }
+
+  sheet.appendRow([
+    new Date(),
+    name,
+    email,
+    hashPassword_(password),
+    role || "Admin",
+  ]);
+  return {
+    ok: true,
+    message: "Admin account created successfully.",
+    admin: { name, email, role: role || "Admin" },
+  };
 }
 
 function doGet(e) {
@@ -72,6 +216,13 @@ function doGet(e) {
       ContentService.MimeType.JSON,
     );
   }
+
+  if (action === "bookings") {
+    return ContentService.createTextOutput(
+      JSON.stringify(getBookings_()),
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
   return ContentService.createTextOutput(
     JSON.stringify({ ok: true }),
   ).setMimeType(ContentService.MimeType.JSON);
@@ -80,6 +231,20 @@ function doGet(e) {
 function doPost(e) {
   try {
     const p = e.parameter || {};
+    const action = String(p.action || "").toLowerCase();
+
+    if (action === "login") {
+      return ContentService.createTextOutput(
+        JSON.stringify(loginAdmin_(p)),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (action === "register-admin") {
+      return ContentService.createTextOutput(
+        JSON.stringify(registerAdmin_(p)),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet =
       ss.getSheetByName(ENQUIRIES_SHEET) || ss.insertSheet(ENQUIRIES_SHEET);
