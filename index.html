@@ -109,7 +109,7 @@
     <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <button class="modal-close" type="button" aria-label="Close" data-close-modal>×</button>
       <div class="modal-head"><span class="kicker">QUICK ENQUIRY</span><h2 id="modalTitle">Book a Home Service</h2><p>Tell us what you need and our team will contact you.</p></div>
-      <form id="enquiryForm" action="https://script.google.com/macros/s/AKfycbzBO8JwHkHK12yPgd7L4c0O4_oLqtdQ5_D0bjvCTtcOiGHV0cmQH0O_p2NMwVdMRozx/exec" method="POST" target="submitFrame">
+      <form id="enquiryForm" action="https://script.google.com/macros/s/AKfycbykWPUaj7u0ZwnwtMnXpfE4Q_qx6vBbmumCZCbXiA_w41nHqvqzGCGzK6CXXIcX93Kz/exec" method="POST" target="submitFrame">
         <input type="hidden" name="source" value="website" />
         <input type="hidden" id="selectedService" name="selectedService" value="" />
         <div class="form-grid">
@@ -126,11 +126,12 @@
         <button class="btn btn-primary btn-lg submit-btn" type="submit">Submit Enquiry</button>
       </form>
       <iframe name="submitFrame" id="submitFrame" class="hidden-frame" title="Form submission"></iframe>
+      <div id="errorMessage" class="error-message" hidden></div>
       <div id="successMessage" class="success-message" hidden><div class="success-icon">✓</div><h3>Enquiry received!</h3><p>Thank you. Our team will contact you shortly.</p><button class="btn btn-primary" data-close-modal>Done</button></div>
     </div>
   </div>
 
-  <script>window.HOME_CARE_CONFIG = { APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzBO8JwHkHK12yPgd7L4c0O4_oLqtdQ5_D0bjvCTtcOiGHV0cmQH0O_p2NMwVdMRozx/exec' };</script>
+  <script>window.HOME_CARE_CONFIG = { APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbykWPUaj7u0ZwnwtMnXpfE4Q_qx6vBbmumCZCbXiA_w41nHqvqzGCGzK6CXXIcX93Kz/exec' };</script>
   <script src="app.js"></script>
 </body>
 </html>

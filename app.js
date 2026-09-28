@@ -23,6 +23,13 @@ const select = $("#serviceSelect");
 const modal = $("#enquiryModal");
 const form = $("#enquiryForm");
 const success = $("#successMessage");
+const errorBox = $("#errorMessage");
+
+function hideStatusMessages() {
+  success.hidden = true;
+  errorBox.hidden = true;
+  errorBox.textContent = "";
+}
 
 function normalizeService(item) {
   if (Array.isArray(item))
@@ -98,7 +105,7 @@ function openModal(service = "") {
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
-  success.hidden = true;
+  hideStatusMessages();
   form.style.display = "block";
   if (service) {
     select.value = service;
@@ -122,18 +129,54 @@ select.addEventListener(
   "change",
   () => ($("#selectedService").value = select.value),
 );
-form.addEventListener("submit", () => {
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
   $("#selectedService").value = select.value;
   const submitBtn = form.querySelector(".submit-btn");
   submitBtn.disabled = true;
   submitBtn.textContent = "Sending…";
-  setTimeout(() => {
+  hideStatusMessages();
+
+  try {
+    const response = await fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      mode: "cors",
+      headers: { Accept: "application/json" },
+    });
+
+    const responseText = await response.text();
+    let payload = {};
+
+    if (responseText) {
+      try {
+        payload = JSON.parse(responseText);
+      } catch (e) {
+        payload = {};
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(payload.error || payload.message || "Unable to send enquiry. Please try again.");
+    }
+
+    if (payload && payload.ok === false) {
+      throw new Error(payload.error || payload.message || "Unable to send enquiry. Please try again.");
+    }
+
+    form.reset();
     form.style.display = "none";
     success.hidden = false;
+  } catch (err) {
+    const message = err && err.message ? err.message : "";
+    if (message) {
+      errorBox.textContent = message;
+      errorBox.hidden = false;
+    }
+  } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Submit Enquiry";
-    form.reset();
-  }, 900);
+  }
 });
 $("#year").textContent = new Date().getFullYear();
 loadServices();
