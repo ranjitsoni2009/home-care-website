@@ -29,6 +29,7 @@ function hideStatusMessages() {
   success.hidden = true;
   errorBox.hidden = true;
   errorBox.textContent = "";
+  errorBox.style.display = "none";
 }
 
 function normalizeService(item) {
@@ -168,10 +169,15 @@ form.addEventListener("submit", async (event) => {
     form.style.display = "none";
     success.hidden = false;
   } catch (err) {
-    const message = err && err.message ? err.message : "";
+    const message = err && err.message ? String(err.message).trim() : "";
     if (message) {
       errorBox.textContent = message;
       errorBox.hidden = false;
+      errorBox.style.display = "block";
+    } else {
+      errorBox.textContent = "";
+      errorBox.hidden = true;
+      errorBox.style.display = "none";
     }
   } finally {
     submitBtn.disabled = false;
