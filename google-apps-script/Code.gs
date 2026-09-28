@@ -23,7 +23,9 @@ function hashPassword_(value) {
     raw,
     Utilities.Charset.UTF_8,
   );
-  return Utilities.byteArrayToHex(digest);
+  return digest
+    .map((byte) => ((byte + 256) % 256).toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function setup() {
