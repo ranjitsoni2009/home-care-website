@@ -113,10 +113,10 @@
         <input type="hidden" name="source" value="website" />
         <input type="hidden" id="selectedService" name="selectedService" value="" />
         <div class="form-grid">
-          <label>Full name<input required name="name" autocomplete="name" placeholder="Your name" /></label>
-          <label>Mobile number<input required name="phone" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile number" pattern="[0-9 +()-]{10,16}" /></label>
+          <label>Full name<input required name="name" autocomplete="name" placeholder="Your name" pattern="[A-Za-z ]+" title="Only letters and spaces are allowed" /></label>
+          <label>Mobile number<input required name="phone" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile number" pattern="[0-9]{10}" maxlength="10" title="Enter exactly 10 digits" /></label>
           <label>Email <span>(optional)</span><input type="email" name="email" autocomplete="email" placeholder="you@example.com" /></label>
-          <label>Preferred date<input type="date" name="preferredDate" /></label>
+          <label>Preferred date<input type="date" name="preferredDate" id="preferredDate" /></label>
           <label>Preferred time<select name="preferredTime"><option value="">Select time</option><option>Morning (8 AM – 12 PM)</option><option>Afternoon (12 PM – 4 PM)</option><option>Evening (4 PM – 8 PM)</option><option>Any time</option></select></label>
           <label>Service<select id="serviceSelect" name="service" required><option value="">Loading services…</option></select></label>
           <label class="full">Address<textarea required name="address" rows="2" placeholder="House / flat, street, area, city"></textarea></label>

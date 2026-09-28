@@ -24,6 +24,7 @@ const modal = $("#enquiryModal");
 const form = $("#enquiryForm");
 const success = $("#successMessage");
 const errorBox = $("#errorMessage");
+const preferredDateInput = $("#preferredDate");
 
 function hideStatusMessages() {
   success.hidden = true;
@@ -120,6 +121,48 @@ function closeModal() {
   modal.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
 }
+function setMinPreferredDate() {
+  if (!preferredDateInput) return;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  preferredDateInput.min = `${yyyy}-${mm}-${dd}`;
+}
+
+function applyFieldValidations() {
+  const nameInput = form.querySelector('input[name="name"]');
+  const phoneInput = form.querySelector('input[name="phone"]');
+
+  if (nameInput) {
+    nameInput.addEventListener("input", () => {
+      nameInput.value = nameInput.value.replace(/[^A-Za-z\s]/g, "");
+    });
+  }
+
+  if (phoneInput) {
+    phoneInput.addEventListener("input", () => {
+      phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 10);
+    });
+  }
+
+  if (preferredDateInput) {
+    preferredDateInput.addEventListener("change", () => {
+      if (!preferredDateInput.value) return;
+      const selected = new Date(preferredDateInput.value + "T00:00:00");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selected < today) {
+        preferredDateInput.value = "";
+        preferredDateInput.setCustomValidity("Please select today or a future date.");
+        preferredDateInput.reportValidity();
+      } else {
+        preferredDateInput.setCustomValidity("");
+      }
+    });
+  }
+}
 document
   .querySelectorAll("[data-book-service]")
   .forEach((b) => b.addEventListener("click", () => openModal()));
@@ -132,6 +175,34 @@ select.addEventListener(
 );
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+
+  const nameInput = form.querySelector('input[name="name"]');
+  const phoneInput = form.querySelector('input[name="phone"]');
+
+  if (!nameInput || !phoneInput) {
+    return;
+  }
+
+  const nameValue = (nameInput.value || "").trim();
+  const phoneValue = (phoneInput.value || "").trim();
+
+  if (!nameValue || !/^[A-Za-z\s]+$/.test(nameValue)) {
+    nameInput.focus();
+    nameInput.setCustomValidity("Name is required and only letters and spaces are allowed.");
+    nameInput.reportValidity();
+    return;
+  }
+
+  if (!phoneValue || !/^\d{10}$/.test(phoneValue)) {
+    phoneInput.focus();
+    phoneInput.setCustomValidity("Mobile number is required and must contain exactly 10 digits.");
+    phoneInput.reportValidity();
+    return;
+  }
+
+  nameInput.setCustomValidity("");
+  phoneInput.setCustomValidity("");
+
   $("#selectedService").value = select.value;
   const submitBtn = form.querySelector(".submit-btn");
   submitBtn.disabled = true;
@@ -185,4 +256,6 @@ form.addEventListener("submit", async (event) => {
   }
 });
 $("#year").textContent = new Date().getFullYear();
+setMinPreferredDate();
+applyFieldValidations();
 loadServices();
