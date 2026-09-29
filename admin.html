@@ -52,8 +52,8 @@
                     <div class="inline-flex p-3 bg-brand-600 text-white rounded-2xl shadow-lg shadow-brand-600/30 text-2xl mb-2">
                         <i class="fa-solid fa-house-chimney-medical"></i>
                     </div>
-                    <h2 class="text-2xl font-bold tracking-tight text-white">Gwalior HomeCare Admin</h2>
-                    <p class="text-xs text-slate-400">Sign in to manage field operations & dispatch</p>
+                    <h2 class="text-2xl font-bold tracking-tight text-white">Homix Care Admin</h2>
+                    <p class="text-xs text-slate-400">Home Care Service • Manage field operations & dispatch</p>
                 </div>
 
                 <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -141,8 +141,8 @@
                         <i class="fa-solid fa-house-chimney-medical"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-white tracking-wide text-base">Gwalior Care</h1>
-                        <span class="text-[11px] text-brand-400 font-semibold tracking-wider uppercase">MP Hub #42</span>
+                        <h1 class="font-bold text-white tracking-wide text-base">Homix Care</h1>
+                        <span class="text-[11px] text-brand-400 font-semibold tracking-wider uppercase">Home Care Service</span>
                     </div>
                 </div>
                 <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white">
@@ -755,7 +755,7 @@
     <div id="addServiceModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
             <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-                <h3 class="font-bold text-white">Add Home Care Service</h3>
+                <h3 class="font-bold text-white">Add Homix Care Booking</h3>
                 <button onclick="closeModal('addServiceModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleNewService(event)" class="p-6 space-y-4">
@@ -835,7 +835,7 @@
 
     <!-- Application JavaScript -->
     <script>
-        const ADMIN_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydc5UILrIFprF6OSKWABJm-zQoULgzUufXd-L3tVW9WMAIXBRX42ReM56m1n0aO4WZ/exec';
+        const ADMIN_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydc5UILrIFprF6OSKWABJm-zQoULgzUufXd-L3tVW9WMAIXBRX42ReM56m1n0aO4WZ/exec@';
 
         // State Management Store for Gwalior Hub
         let state = {
@@ -917,7 +917,7 @@
                 document.getElementById('app-main-layout').classList.remove('hidden');
                 await loadBookingsFromSheet();
                 renderAll();
-                showToast('Welcome back to Gwalior HomeCare Admin!');
+                showToast('Welcome back to Homix Care Admin!');
             } catch (error) {
                 showToast(error.message || 'Unable to log in.');
             }
