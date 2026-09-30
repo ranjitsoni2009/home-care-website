@@ -834,9 +834,8 @@
     </div>
 
     <!-- Application JavaScript -->
+    <script src="config.js"></script>
     <script>
-        const ADMIN_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydc5UILrIFprF6OSKWABJm-zQoULgzUufXd-L3tVW9WMAIXBRX42ReM56m1n0aO4WZ/exec@';
-
         // State Management Store for Gwalior Hub
         let state = {
             currentUser: null,
@@ -898,7 +897,7 @@
             const password = document.getElementById('loginPassword').value;
 
             try {
-                const response = await fetch(ADMIN_SCRIPT_URL, {
+                const response = await fetch(window.HOME_CARE_CONFIG.APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ action: 'login', email, password })
@@ -931,7 +930,7 @@
             const password = document.getElementById('signupPassword').value;
 
             try {
-                const response = await fetch(ADMIN_SCRIPT_URL, {
+                const response = await fetch(window.HOME_CARE_CONFIG.APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ action: 'register-admin', name, email, password, role })
@@ -1027,7 +1026,7 @@
 
         async function loadBookingsFromSheet() {
             try {
-                const response = await fetch(`${ADMIN_SCRIPT_URL}?action=bookings`);
+                const response = await fetch(`${window.HOME_CARE_CONFIG.APPS_SCRIPT_URL}?action=bookings`);
                 const data = await response.json();
                 state.bookings = normalizeBookings(Array.isArray(data) ? data : []);
             } catch (error) {

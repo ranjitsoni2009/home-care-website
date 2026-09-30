@@ -109,7 +109,7 @@
     <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <button class="modal-close" type="button" aria-label="Close" data-close-modal>×</button>
       <div class="modal-head"><span class="kicker">QUICK ENQUIRY</span><h2 id="modalTitle">Book a Home Service</h2><p>Tell us what you need and our team will contact you.</p></div>
-      <form id="enquiryForm" action="https://script.google.com/macros/s/AKfycbydc5UILrIFprF6OSKWABJm-zQoULgzUufXd-L3tVW9WMAIXBRX42ReM56m1n0aO4WZ/exec" method="POST" target="submitFrame">
+      <form id="enquiryForm" method="POST" target="submitFrame">
         <input type="hidden" name="source" value="website" />
         <input type="hidden" id="selectedService" name="selectedService" value="" />
         <div class="form-grid">
@@ -131,7 +131,7 @@
     </div>
   </div>
 
-  <script>window.HOME_CARE_CONFIG = { APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbydc5UILrIFprF6OSKWABJm-zQoULgzUufXd-L3tVW9WMAIXBRX42ReM56m1n0aO4WZ/exec' };</script>
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

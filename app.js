@@ -22,9 +22,12 @@ const grid = $("#servicesGrid");
 const select = $("#serviceSelect");
 const modal = $("#enquiryModal");
 const form = $("#enquiryForm");
+const submitFrame = $("#submitFrame");
+if (CONFIG.APPS_SCRIPT_URL) form.action = CONFIG.APPS_SCRIPT_URL;
 const success = $("#successMessage");
 const errorBox = $("#errorMessage");
 const preferredDateInput = $("#preferredDate");
+let submissionPending = false;
 
 function hideStatusMessages() {
   success.hidden = true;
@@ -173,9 +176,7 @@ select.addEventListener(
   "change",
   () => ($("#selectedService").value = select.value),
 );
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
+form.addEventListener("submit", (event) => {
   const nameInput = form.querySelector('input[name="name"]');
   const phoneInput = form.querySelector('input[name="phone"]');
 
@@ -208,52 +209,19 @@ form.addEventListener("submit", async (event) => {
   submitBtn.disabled = true;
   submitBtn.textContent = "Sending…";
   hideStatusMessages();
+  submissionPending = true;
+});
 
-  try {
-    const response = await fetch(form.action, {
-      method: "POST",
-      body: new FormData(form),
-      mode: "cors",
-      headers: { Accept: "application/json" },
-    });
+submitFrame.addEventListener("load", () => {
+  if (!submissionPending) return;
+  submissionPending = false;
 
-    const responseText = await response.text();
-    let payload = {};
-
-    if (responseText) {
-      try {
-        payload = JSON.parse(responseText);
-      } catch (e) {
-        payload = {};
-      }
-    }
-
-    if (!response.ok) {
-      throw new Error(payload.error || payload.message || "Unable to send enquiry. Please try again.");
-    }
-
-    if (payload && payload.ok === false) {
-      throw new Error(payload.error || payload.message || "Unable to send enquiry. Please try again.");
-    }
-
-    form.reset();
-    form.style.display = "none";
-    success.hidden = false;
-  } catch (err) {
-    const message = err && err.message ? String(err.message).trim() : "";
-    if (message) {
-      errorBox.textContent = message;
-      errorBox.hidden = false;
-      errorBox.style.display = "block";
-    } else {
-      errorBox.textContent = "";
-      errorBox.hidden = true;
-      errorBox.style.display = "none";
-    }
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit Enquiry";
-  }
+  const submitBtn = form.querySelector(".submit-btn");
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Submit Enquiry";
+  form.reset();
+  form.style.display = "none";
+  success.hidden = false;
 });
 $("#year").textContent = new Date().getFullYear();
 setMinPreferredDate();

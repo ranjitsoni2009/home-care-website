@@ -7,6 +7,7 @@ This website is based on the uploaded Home Care Service UX/poster. It is respons
 - `index.html` — website and enquiry modal
 - `styles.css` — responsive UI
 - `app.js` — service loading + form interactions
+- `config.js` — shared Google Apps Script web app URL
 - `assets/payment-qr.png` — QR image cropped from the supplied UX image
 - `google-apps-script/Code.gs` — Google Apps Script backend for Google Sheets
 
@@ -24,17 +25,17 @@ This website is based on the uploaded Home Care Service UX/poster. It is respons
 8. In Apps Script choose **Deploy → New deployment → Web app**.
 9. Execute as **Me** and set access to **Anyone** (or your required access policy).
 10. Copy the deployed Web App URL.
-11. In `index.html`, replace `YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL` with that URL in both places: the form `action` and `HOME_CARE_CONFIG.APPS_SCRIPT_URL`.
+11. In `config.js`, set `HOME_CARE_CONFIG.APPS_SCRIPT_URL` to the deployed Web App URL. Both the website and admin page use this setting.
 12. Upload the website files to any static host (GitHub Pages, Netlify, Vercel static hosting, Firebase Hosting, your own web server, etc.).
 
 ## Managing services
 
 You do NOT need to edit the HTML when adding/removing services. Edit the `Services` sheet instead:
 
-| Service | Description | Icon | Active |
-|---|---|---|---|
-| Electrician | Electrical repair & installation | ⚡ | TRUE |
-| AC Repair & Service | AC servicing & repair | ❄️ | TRUE |
+| Service             | Description                      | Icon | Active |
+| ------------------- | -------------------------------- | ---- | ------ |
+| Electrician         | Electrical repair & installation | ⚡   | TRUE   |
+| AC Repair & Service | AC servicing & repair            | ❄️   | TRUE   |
 
 Set `Active` to `FALSE` to hide a service from the website. Add a new row to make a new service appear.
 
