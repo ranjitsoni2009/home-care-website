@@ -19,14 +19,18 @@ This website is based on the uploaded Home Care Service UX/poster. It is respons
 4. Paste `google-apps-script/Code.gs` into the Apps Script editor.
 5. Replace `PASTE_YOUR_GOOGLE_SHEET_ID_HERE` with your Sheet ID.
 6. Save.
-7. Run the `setup` function once and authorize it. This creates two sheets:
+7. Run the `setup` function once and authorize it. This creates the following sheets:
    - `Services`: `Service | Description | Icon | Active`
    - `Enquiries`: stores customer submissions.
+   - `vendor`: stores service provider registrations for review.
 8. In Apps Script choose **Deploy → New deployment → Web app**.
 9. Execute as **Me** and set access to **Anyone** (or your required access policy).
 10. Copy the deployed Web App URL.
 11. In `config.js`, set `HOME_CARE_CONFIG.APPS_SCRIPT_URL` to the deployed Web App URL. Both the website and admin page use this setting.
 12. Upload the website files to any static host (GitHub Pages, Netlify, Vercel static hosting, Firebase Hosting, your own web server, etc.).
+
+Service providers can register at `vendor.html`. New registrations are saved in the `vendor` sheet with a `Pending` status.
+If the Apps Script web app is already deployed, save the updated `Code.gs` and deploy a new version under **Deploy → Manage deployments → Edit → New version → Deploy**.
 
 ## Managing services
 

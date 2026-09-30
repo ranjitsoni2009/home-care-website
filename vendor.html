@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Register as a Homix Care home service provider." />
+  <title>Join Homix Care | Service Provider Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand-mark" href="index.html" aria-label="Homix Care home">HC</a>
+      <div class="brand-copy">
+        <div class="brand-title">HOMIX <span>CARE</span></div>
+        <div class="brand-sub">Service Provider Registration</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-light" href="index.html">Back to Home</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="modal-dialog">
+          <div class="modal-head">
+            <span class="kicker">PARTNER WITH HOMIX CARE</span>
+            <h1 id="registrationTitle">Service Provider Registration</h1>
+            <p>Share your details to register your home service business with our team.</p>
+          </div>
+
+          <form id="vendorForm" method="POST" target="vendorSubmitFrame">
+            <input type="hidden" name="action" value="register-vendor" />
+            <div class="form-grid">
+              <label>Business / provider name
+                <input required name="providerName" autocomplete="organization" maxlength="120" />
+              </label>
+              <label>Contact person
+                <input required name="contactPerson" autocomplete="name" maxlength="100" />
+              </label>
+              <label>Mobile number
+                <input required name="phone" type="tel" inputmode="numeric" autocomplete="tel" pattern="[0-9]{10}" maxlength="10" title="Enter a 10-digit mobile number" />
+              </label>
+              <label>Email <span>(optional)</span>
+                <input name="email" type="email" autocomplete="email" maxlength="120" />
+              </label>
+              <label>Service category
+                <select required name="serviceCategory">
+                  <option value="">Select a category</option>
+                  <option>Electrical</option>
+                  <option>AC and appliances</option>
+                  <option>Plumbing</option>
+                  <option>Cleaning</option>
+                  <option>Carpentry</option>
+                  <option>Painting</option>
+                  <option>Salon and beauty</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label>Experience in years <span>(optional)</span>
+                <input name="experienceYears" type="number" min="0" max="60" step="1" inputmode="numeric" />
+              </label>
+              <label class="full">Areas you serve
+                <input required name="serviceAreas" maxlength="250" placeholder="e.g. Gwalior, Morar, Lashkar" />
+              </label>
+              <label class="full">Business address
+                <textarea required name="address" rows="2" maxlength="500" autocomplete="street-address"></textarea>
+              </label>
+              <label class="full">Services or experience details <span>(optional)</span>
+                <textarea name="details" rows="3" maxlength="1000" placeholder="Describe your skills, team, or services"></textarea>
+              </label>
+            </div>
+            <div class="form-note">Your registration will be reviewed by the Homix Care team before activation.</div>
+            <button class="btn btn-primary btn-lg submit-btn" type="submit">Submit Registration</button>
+          </form>
+
+          <div id="vendorStatus" class="success-message" role="status" aria-live="polite" hidden>
+            <div class="success-icon">✓</div>
+            <h2>Registration submitted</h2>
+            <p>Thank you. Our team will contact you after reviewing your details.</p>
+            <a class="btn btn-primary" href="index.html">Back to Home</a>
+          </div>
+          <iframe name="vendorSubmitFrame" id="vendorSubmitFrame" class="hidden-frame" title="Registration submission"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="vendor.js"></script>
+</body>
+</html>

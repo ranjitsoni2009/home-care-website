@@ -15,6 +15,7 @@ const SPREADSHEET_ID = "1mw0NJxQR5RCX9jaZqLUF11Jt_y56llBVN-VsxYtMS4U";
 const SERVICES_SHEET = "Services";
 const ENQUIRIES_SHEET = "Enquiries";
 const ADMINS_SHEET = "Admins";
+const VENDORS_SHEET = "vendor";
 
 function hashPassword_(value) {
   const raw = value == null ? "" : String(value);
@@ -71,6 +72,25 @@ function setup() {
       "Source",
     ]);
     enquiries.setFrozenRows(1);
+  }
+
+  let vendors = ss.getSheetByName(VENDORS_SHEET);
+  if (!vendors) vendors = ss.insertSheet(VENDORS_SHEET);
+  if (vendors.getLastRow() === 0) {
+    vendors.appendRow([
+      "Registered At",
+      "Provider Name",
+      "Contact Person",
+      "Phone",
+      "Email",
+      "Service Category",
+      "Experience Years",
+      "Service Areas",
+      "Address",
+      "Additional Details",
+      "Status",
+    ]);
+    vendors.setFrozenRows(1);
   }
 
   let admins = ss.getSheetByName(ADMINS_SHEET);
@@ -247,6 +267,12 @@ function doPost(e) {
       ).setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (action === "register-vendor") {
+      return ContentService.createTextOutput(
+        JSON.stringify(registerVendor_(p)),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet =
       ss.getSheetByName(ENQUIRIES_SHEET) || ss.insertSheet(ENQUIRIES_SHEET);
@@ -283,6 +309,69 @@ function doPost(e) {
       JSON.stringify({ ok: false, error: String(err) }),
     ).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function registerVendor_(p) {
+  const providerName = String(p.providerName || "").trim();
+  const contactPerson = String(p.contactPerson || "").trim();
+  const phone = String(p.phone || "").trim();
+  const email = String(p.email || "").trim();
+  const serviceCategory = String(p.serviceCategory || "").trim();
+  const experienceYears = String(p.experienceYears || "").trim();
+  const serviceAreas = String(p.serviceAreas || "").trim();
+  const address = String(p.address || "").trim();
+  const details = String(p.details || "").trim();
+
+  if (
+    !providerName ||
+    !contactPerson ||
+    !phone ||
+    !serviceCategory ||
+    !serviceAreas ||
+    !address
+  ) {
+    return {
+      ok: false,
+      error: "Please complete all required registration fields.",
+    };
+  }
+  if (!/^\d{10}$/.test(phone)) {
+    return { ok: false, error: "Enter a valid 10-digit mobile number." };
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(VENDORS_SHEET);
+  if (!sheet) sheet = ss.insertSheet(VENDORS_SHEET);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow([
+      "Registered At",
+      "Provider Name",
+      "Contact Person",
+      "Phone",
+      "Email",
+      "Service Category",
+      "Experience Years",
+      "Service Areas",
+      "Address",
+      "Additional Details",
+      "Status",
+    ]);
+    sheet.setFrozenRows(1);
+  }
+  sheet.appendRow([
+    new Date(),
+    providerName,
+    contactPerson,
+    phone,
+    email,
+    serviceCategory,
+    experienceYears,
+    serviceAreas,
+    address,
+    details,
+    "Pending",
+  ]);
+  return { ok: true, message: "Registration received." };
 }
 
 function getServices_() {
