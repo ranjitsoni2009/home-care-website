@@ -16,6 +16,21 @@ const SERVICES_SHEET = "Services";
 const ENQUIRIES_SHEET = "Enquiries";
 const ADMINS_SHEET = "Admins";
 const VENDORS_SHEET = "vendor";
+const ENQUIRY_HEADERS = [
+  "Timestamp",
+  "Name",
+  "Phone",
+  "Email",
+  "Preferred Date",
+  "Preferred Time",
+  "Service",
+  "Address",
+  "Requirement",
+  "Source",
+  "Status",
+  "Assignee",
+  "Payment Status",
+];
 
 function hashPassword_(value) {
   const raw = value == null ? "" : String(value);
@@ -56,23 +71,7 @@ function setup() {
     ].forEach((r) => services.appendRow(r));
   }
 
-  let enquiries = ss.getSheetByName(ENQUIRIES_SHEET);
-  if (!enquiries) enquiries = ss.insertSheet(ENQUIRIES_SHEET);
-  if (enquiries.getLastRow() === 0) {
-    enquiries.appendRow([
-      "Timestamp",
-      "Name",
-      "Phone",
-      "Email",
-      "Preferred Date",
-      "Preferred Time",
-      "Service",
-      "Address",
-      "Requirement",
-      "Source",
-    ]);
-    enquiries.setFrozenRows(1);
-  }
+  ensureEnquiriesSheet_();
 
   let vendors = ss.getSheetByName(VENDORS_SHEET);
   if (!vendors) vendors = ss.insertSheet(VENDORS_SHEET);
@@ -108,26 +107,225 @@ function setup() {
   }
 }
 
+function ensureEnquiriesSheet_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(ENQUIRIES_SHEET);
+  if (!sheet) sheet = ss.insertSheet(ENQUIRIES_SHEET);
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(ENQUIRY_HEADERS);
+  } else {
+    const lastColumn = Math.max(sheet.getLastColumn(), 1);
+    const headers = sheet
+      .getRange(1, 1, 1, lastColumn)
+      .getDisplayValues()[0]
+      .map((header) => String(header || "").trim());
+    ENQUIRY_HEADERS.forEach((header) => {
+      if (headers.includes(header)) return;
+      const column = sheet.getLastColumn() + 1;
+      sheet.getRange(1, column).setValue(header);
+      headers.push(header);
+      const defaultValue =
+        header === "Status"
+          ? "Pending"
+          : header === "Payment Status"
+            ? "Unpaid"
+            : "";
+      if (defaultValue && sheet.getLastRow() > 1) {
+        sheet
+          .getRange(2, column, sheet.getLastRow() - 1, 1)
+          .setValue(defaultValue);
+      }
+    });
+  }
+  sheet.setFrozenRows(1);
+  return sheet;
+}
+
+function getHeaderColumns_(sheet) {
+  return sheet
+    .getRange(1, 1, 1, sheet.getLastColumn())
+    .getDisplayValues()[0]
+    .reduce((columns, header, index) => {
+      columns[String(header || "").trim()] = index;
+      return columns;
+    }, {});
+}
+
+function createAdminSession_(admin) {
+  const token = Utilities.getUuid().replace(/-/g, "");
+  CacheService.getScriptCache().put(
+    "admin_session_" + token,
+    JSON.stringify({ email: admin.email, role: admin.role }),
+    21600,
+  );
+  return token;
+}
+
+function getAdminSession_(token) {
+  const value = String(token || "");
+  if (!value) return null;
+  const session = CacheService.getScriptCache().get("admin_session_" + value);
+  if (!session) return null;
+  try {
+    return JSON.parse(session);
+  } catch (error) {
+    return null;
+  }
+}
+
 function getBookings_() {
-  const sheet =
-    SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(ENQUIRIES_SHEET);
+  const sheet = ensureEnquiriesSheet_();
   if (!sheet || sheet.getLastRow() < 2) return [];
-  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 10).getValues();
+  const columns = getHeaderColumns_(sheet);
+  const rows = sheet
+    .getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn())
+    .getValues();
   return rows
-    .filter((row) => row[0] || row[1] || row[2])
-    .map((row, index) => ({
-      id: index + 1,
-      timestamp: row[0] ? new Date(row[0]).toISOString() : "",
-      name: String(row[1] || ""),
-      phone: String(row[2] || ""),
-      email: String(row[3] || ""),
-      preferredDate: String(row[4] || ""),
-      preferredTime: String(row[5] || ""),
-      service: String(row[6] || ""),
-      address: String(row[7] || ""),
-      requirement: String(row[8] || ""),
-      source: String(row[9] || "website"),
-    }));
+    .map((row, index) => {
+      const value = (header) => row[columns[header]];
+      return {
+        id: index + 2,
+        timestamp: value("Timestamp")
+          ? new Date(value("Timestamp")).toISOString()
+          : "",
+        name: String(value("Name") || ""),
+        phone: String(value("Phone") || ""),
+        email: String(value("Email") || ""),
+        preferredDate: String(value("Preferred Date") || ""),
+        preferredTime: String(value("Preferred Time") || ""),
+        service: String(value("Service") || ""),
+        address: String(value("Address") || ""),
+        requirement: String(value("Requirement") || ""),
+        source: String(value("Source") || "website"),
+        status: String(value("Status") || "Pending"),
+        assignee: String(value("Assignee") || ""),
+        paymentStatus: String(value("Payment Status") || "Unpaid"),
+      };
+    })
+    .filter((booking) => booking.timestamp || booking.name || booking.phone);
+}
+
+function getVendors_() {
+  const sheet =
+    SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(VENDORS_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const columns = getHeaderColumns_(sheet);
+  const rows = sheet
+    .getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn())
+    .getDisplayValues();
+  return rows
+    .map((row) => {
+      const value = (header) => row[columns[header]];
+      const providerName = String(value("Provider Name") || "").trim();
+      const phone = String(value("Phone") || "").trim();
+      const status = String(value("Status") || "Pending").trim();
+      return {
+        providerName,
+        contactPerson: String(value("Contact Person") || ""),
+        phone,
+        serviceCategory: String(value("Service Category") || ""),
+        status,
+        assigneeKey: providerName && phone ? `${providerName} (${phone})` : "",
+      };
+    })
+    .filter(
+      (vendor) =>
+        vendor.assigneeKey && !/^(rejected|inactive)$/i.test(vendor.status),
+    );
+}
+
+function updateBooking_(p) {
+  const rowNumber = Number(p.id);
+  const status = String(p.status || "").trim();
+  const assignee = String(p.assignee || "").trim();
+  const paymentStatus = String(p.paymentStatus || "").trim();
+  const allowedStatuses = [
+    "Pending",
+    "Assigned",
+    "In Progress",
+    "Completed",
+    "Cancelled",
+  ];
+  const allowedPaymentStatuses = ["Unpaid", "Paid", "Refunded", "Failed"];
+  if (!Number.isInteger(rowNumber) || rowNumber < 2) {
+    return { ok: false, error: "Invalid booking." };
+  }
+  if (
+    !allowedStatuses.includes(status) ||
+    !allowedPaymentStatuses.includes(paymentStatus)
+  ) {
+    return { ok: false, error: "Select valid booking and payment statuses." };
+  }
+  if (
+    assignee &&
+    !getVendors_().some((vendor) => vendor.assigneeKey === assignee)
+  ) {
+    return { ok: false, error: "Select a vendor from the vendor list." };
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = ensureEnquiriesSheet_();
+    if (rowNumber > sheet.getLastRow())
+      return { ok: false, error: "Booking not found." };
+    const columns = getHeaderColumns_(sheet);
+    [
+      ["Status", status],
+      ["Assignee", assignee],
+      ["Payment Status", paymentStatus],
+    ].forEach(([header, value]) =>
+      sheet.getRange(rowNumber, columns[header] + 1).setValue(value),
+    );
+    return { ok: true, message: "Booking updated." };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function createBooking_(p) {
+  const name = String(p.name || "").trim();
+  const phone = String(p.phone || "").trim();
+  const service = String(p.service || "").trim();
+  const assignee = String(p.assignee || "").trim();
+  if (!name || !phone || !service) {
+    return {
+      ok: false,
+      error: "Customer name, phone, and service are required.",
+    };
+  }
+  if (
+    assignee &&
+    !getVendors_().some((vendor) => vendor.assigneeKey === assignee)
+  ) {
+    return { ok: false, error: "Select a vendor from the vendor list." };
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = ensureEnquiriesSheet_();
+    const columns = getHeaderColumns_(sheet);
+    const row = new Array(sheet.getLastColumn()).fill("");
+    const fields = {
+      Timestamp: new Date(),
+      Name: name,
+      Phone: phone,
+      Service: service,
+      Source: "admin",
+      Status: assignee ? "Assigned" : "Pending",
+      Assignee: assignee,
+      "Payment Status": "Unpaid",
+    };
+    Object.keys(fields).forEach((header) => {
+      row[columns[header]] = fields[header];
+    });
+    sheet.appendRow(row);
+    return { ok: true, id: sheet.getLastRow(), message: "Booking created." };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function loginAdmin_(p) {
@@ -160,14 +358,16 @@ function loginAdmin_(p) {
     return { ok: false, error: "Invalid email or password." };
   }
 
+  const admin = {
+    name: String(match[1] || ""),
+    email: String(match[2] || ""),
+    role: String(match[4] || "Admin"),
+  };
+  admin.token = createAdminSession_(admin);
   return {
     ok: true,
     message: "Login successful.",
-    admin: {
-      name: String(match[1] || ""),
-      email: String(match[2] || ""),
-      role: String(match[4] || "Admin"),
-    },
+    admin,
   };
 }
 
@@ -241,7 +441,7 @@ function doGet(e) {
 
   if (action === "bookings") {
     return ContentService.createTextOutput(
-      JSON.stringify(getBookings_()),
+      JSON.stringify({ ok: false, error: "Sign in to access bookings." }),
     ).setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -262,6 +462,15 @@ function doPost(e) {
     }
 
     if (action === "register-admin") {
+      const session = getAdminSession_(p.token);
+      if (!session || session.role !== "Super Admin") {
+        return ContentService.createTextOutput(
+          JSON.stringify({
+            ok: false,
+            error: "Super Admin access is required.",
+          }),
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
       return ContentService.createTextOutput(
         JSON.stringify(registerAdmin_(p)),
       ).setMimeType(ContentService.MimeType.JSON);
@@ -273,34 +482,57 @@ function doPost(e) {
       ).setMimeType(ContentService.MimeType.JSON);
     }
 
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet =
-      ss.getSheetByName(ENQUIRIES_SHEET) || ss.insertSheet(ENQUIRIES_SHEET);
-    if (sheet.getLastRow() === 0)
-      sheet.appendRow([
-        "Timestamp",
-        "Name",
-        "Phone",
-        "Email",
-        "Preferred Date",
-        "Preferred Time",
-        "Service",
-        "Address",
-        "Requirement",
-        "Source",
-      ]);
-    sheet.appendRow([
-      new Date(),
-      p.name || "",
-      p.phone || "",
-      p.email || "",
-      p.preferredDate || "",
-      p.preferredTime || "",
-      p.service || p.selectedService || "",
-      p.address || "",
-      p.requirement || "",
-      p.source || "website",
-    ]);
+    if (
+      [
+        "get-bookings",
+        "get-vendors",
+        "update-booking",
+        "create-booking",
+      ].includes(action)
+    ) {
+      const session = getAdminSession_(p.token);
+      if (!session) {
+        return ContentService.createTextOutput(
+          JSON.stringify({
+            ok: false,
+            error: "Your admin session has expired. Sign in again.",
+          }),
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
+      let result;
+      if (action === "get-bookings")
+        result = { ok: true, bookings: getBookings_() };
+      if (action === "get-vendors")
+        result = { ok: true, vendors: getVendors_() };
+      if (action === "update-booking") result = updateBooking_(p);
+      if (action === "create-booking") result = createBooking_(p);
+      return ContentService.createTextOutput(
+        JSON.stringify(result),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const sheet = ensureEnquiriesSheet_();
+    const columns = getHeaderColumns_(sheet);
+    const row = new Array(sheet.getLastColumn()).fill("");
+    const fields = {
+      Timestamp: new Date(),
+      Name: p.name || "",
+      Phone: p.phone || "",
+      Email: p.email || "",
+      "Preferred Date": p.preferredDate || "",
+      "Preferred Time": p.preferredTime || "",
+      Service: p.service || p.selectedService || "",
+      Address: p.address || "",
+      Requirement: p.requirement || "",
+      Source: p.source || "website",
+      Status: "Pending",
+      Assignee: "",
+      "Payment Status": "Unpaid",
+    };
+    Object.keys(fields).forEach((header) => {
+      row[columns[header]] = fields[header];
+    });
+    sheet.appendRow(row);
     return ContentService.createTextOutput(
       JSON.stringify({ ok: true, message: "Enquiry saved" }),
     ).setMimeType(ContentService.MimeType.JSON);
